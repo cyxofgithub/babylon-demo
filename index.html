@@ -95,6 +95,91 @@
                 box.material = boxMat;
                 box.position.y = 0.5;
 
+                const axisThickness = 0.05; // 线段粗细
+                const arrowSize = 0.2; // 箭头大小
+
+                const xAxisPoints = [
+                    new BABYLON.Vector3(0, 0, 0),
+                    new BABYLON.Vector3(1, 0, 0),
+                ];
+                const yAxisPoints = [
+                    new BABYLON.Vector3(0, 0, 0),
+                    new BABYLON.Vector3(0, 1, 0),
+                ];
+                const zAxisPoints = [
+                    new BABYLON.Vector3(0, 0, 0),
+                    new BABYLON.Vector3(0, 0, 1),
+                ];
+
+                const xAxis = BABYLON.MeshBuilder.CreateTube("xAxis", {
+                    path: xAxisPoints,
+                    radius: axisThickness,
+                });
+                const yAxis = BABYLON.MeshBuilder.CreateTube("yAxis", {
+                    path: yAxisPoints,
+                    radius: axisThickness,
+                });
+                const zAxis = BABYLON.MeshBuilder.CreateTube("zAxis", {
+                    path: zAxisPoints,
+                    radius: axisThickness,
+                });
+
+                const xAxisMaterial = new BABYLON.StandardMaterial(
+                    "xAxisMaterial",
+                    scene
+                );
+                xAxisMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0); // 设置 x 轴颜色为红色
+
+                const yAxisMaterial = new BABYLON.StandardMaterial(
+                    "yAxisMaterial",
+                    scene
+                );
+                yAxisMaterial.diffuseColor = new BABYLON.Color3(0, 1, 0); // 设置 y 轴颜色为绿色
+
+                const zAxisMaterial = new BABYLON.StandardMaterial(
+                    "zAxisMaterial",
+                    scene
+                );
+                zAxisMaterial.diffuseColor = new BABYLON.Color3(0, 0, 1); // 设置 z 轴颜色为蓝色
+
+                xAxis.material = xAxisMaterial;
+                yAxis.material = yAxisMaterial;
+                zAxis.material = zAxisMaterial;
+
+                // 创建箭头
+                const arrowHead = BABYLON.MeshBuilder.CreateCylinder(
+                    "arrowHead",
+                    {
+                        height: arrowSize,
+                        diameterTop: 0,
+                        diameterBottom: arrowSize * 0.8,
+                    }
+                );
+                arrowHead.rotation.x = Math.PI / 2; // 旋转箭头使其朝向正方向
+
+                // 将箭头与线段连接并附加到盒子
+                const xArrow = arrowHead.clone();
+                xArrow.parent = xAxis;
+                xArrow.position = new BABYLON.Vector3(1, 0, 0); // 设置箭头位置
+
+                const yArrow = arrowHead.clone();
+                yArrow.parent = yAxis;
+                yArrow.position = new BABYLON.Vector3(0, 1, 0);
+
+                const zArrow = arrowHead.clone();
+                zArrow.parent = zAxis;
+                zArrow.position = new BABYLON.Vector3(0, 0, 1);
+
+                // 将线段和箭头附加到盒子
+                xAxis.parent = box;
+                yAxis.parent = box;
+                zAxis.parent = box;
+
+                // 旋转箭头的方向
+                xArrow.rotation.y = Math.PI / 2; // 将 x 轴箭头旋转 90 度
+                yArrow.rotation.x = 2 * Math.PI; // 将 y 轴箭头旋转 0 度
+                zArrow.rotation.x = Math.PI / 2; // 将 z 轴箭头旋转 90 度
+
                 const ground = BABYLON.MeshBuilder.CreateGround("ground", {
                     width: 10,
                     height: 10,
