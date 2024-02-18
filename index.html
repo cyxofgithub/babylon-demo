@@ -68,22 +68,43 @@
             };
             const createScene = () => {
                 const scene = new BABYLON.Scene(engine);
-                // 创建一个动作管理器
-                scene.actionManager = new BABYLON.ActionManager(scene);
-
-                scene.actionManager.registerAction(
-                    new BABYLON.ExecuteCodeAction(
-                        {
-                            trigger: BABYLON.ActionManager.OnKeyUpTrigger,
-                            parameter: function (actionEvent) {
-                                return actionEvent.sourceEvent.key === "R";
-                            },
-                        },
-                        function () {
-                            console.log("R button was pressed");
-                        }
-                    )
+                // 设置场景的背景颜色
+                // scene.clearColor = new BABYLON.Color3.FromHexString("#e5e8d8");
+                const planeOpts = {
+                    height: 4,
+                    width: 8.5,
+                    sideOrientation: BABYLON.Mesh.DOUBLESIDE,
+                };
+                const ANote0Video = BABYLON.MeshBuilder.CreatePlane(
+                    "plane",
+                    planeOpts,
+                    scene
                 );
+                const vidPos = new BABYLON.Vector3(-0.07, 2.44, 4.88);
+                ANote0Video.position = vidPos;
+                const ANote0VideoMat = new BABYLON.StandardMaterial("m", scene);
+                const ANote0VideoVidTex = new BABYLON.VideoTexture(
+                    "vidtex",
+                    "./video/oceans.mp4",
+                    scene
+                );
+                ANote0VideoMat.diffuseTexture = ANote0VideoVidTex;
+                ANote0VideoMat.roughness = 1;
+                ANote0VideoMat.emissiveColor = new BABYLON.Color3.White();
+                ANote0Video.material = ANote0VideoMat;
+                scene.onPointerObservable.add(function (evt) {
+                    if (evt.pickInfo.pickedMesh === ANote0Video) {
+                        //console.log("picked");
+                        if (ANote0VideoVidTex.video.paused)
+                            ANote0VideoVidTex.video.play();
+                        else ANote0VideoVidTex.video.pause();
+                        console.log(
+                            ANote0VideoVidTex.video.paused
+                                ? "paused"
+                                : "playing"
+                        );
+                    }
+                }, BABYLON.PointerEventTypes.POINTERPICK);
 
                 /**** Set camera and light *****/
                 const camera = new BABYLON.ArcRotateCamera(
@@ -239,6 +260,8 @@
                     scene
                 );
 
+                ground.material = boxMat;
+
                 const wallThickness = boxHeight;
                 const wallHeight = boxDepth / 2;
                 const wallDepth = boxDepth;
@@ -273,6 +296,10 @@
                     2.25,
                     ground.position.z + boxDepth / 2 + wallThickness / 2
                 );
+
+                // 将材质应用于盒子
+                wall1.material = boxMat;
+                wall2.material = boxMat;
                 scene.debugLayer.show();
                 return scene;
             };
