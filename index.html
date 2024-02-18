@@ -48,9 +48,9 @@
     <body>
         <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
         <script>
-            var canvas = document.getElementById("renderCanvas");
+            const canvas = document.getElementById("renderCanvas");
 
-            var startRenderLoop = function (engine, canvas) {
+            const startRenderLoop = function (engine, canvas) {
                 engine.runRenderLoop(function () {
                     if (sceneToRender && sceneToRender.activeCamera) {
                         sceneToRender.render();
@@ -58,10 +58,8 @@
                 });
             };
 
-            var engine = null;
-            var scene = null;
             var sceneToRender = null;
-            var createDefaultEngine = function () {
+            const createDefaultEngine = function () {
                 return new BABYLON.Engine(canvas, true, {
                     preserveDrawingBuffer: true,
                     stencil: true,
@@ -70,6 +68,22 @@
             };
             const createScene = () => {
                 const scene = new BABYLON.Scene(engine);
+                // 创建一个动作管理器
+                scene.actionManager = new BABYLON.ActionManager(scene);
+
+                scene.actionManager.registerAction(
+                    new BABYLON.ExecuteCodeAction(
+                        {
+                            trigger: BABYLON.ActionManager.OnKeyUpTrigger,
+                            parameter: function (actionEvent) {
+                                return actionEvent.sourceEvent.key === "R";
+                            },
+                        },
+                        function () {
+                            console.log("R button was pressed");
+                        }
+                    )
+                );
 
                 /**** Set camera and light *****/
                 const camera = new BABYLON.ArcRotateCamera(
@@ -79,6 +93,11 @@
                     10,
                     new BABYLON.Vector3(0, 0, 0)
                 );
+
+                // 限制相机在垂直方向上的旋转角度范围
+                camera.lowerBetaLimit = 0.1; // 最小角度
+                camera.upperBetaLimit = Math.PI / 2; // 最大角度
+
                 camera.attachControl(canvas, true);
                 const light = new BABYLON.HemisphericLight(
                     "light",
@@ -95,89 +114,171 @@
                 box.material = boxMat;
                 box.position.y = 0.5;
 
-                const axisThickness = 0.1; // 线段粗细
-                const arrowSize = 0.3; // 箭头大小
-
-                const xAxisPoints = [
-                    new BABYLON.Vector3(0, 0, 0),
-                    new BABYLON.Vector3(2, 0, 0),
-                ];
-
-                const zAxisPoints = [
-                    new BABYLON.Vector3(0, 0, 0),
-                    new BABYLON.Vector3(0, 0, 2),
-                ];
-
-                const xAxis = BABYLON.MeshBuilder.CreateTube("xAxis", {
-                    path: xAxisPoints,
-                    radius: axisThickness,
+                // 创建一个指针拖动行为
+                const dragBehavior = new BABYLON.PointerDragBehavior({
+                    dragPlaneNormal: new BABYLON.Vector3(0, 1, 0),
                 });
-                xAxis.position = new BABYLON.Vector3(0, -0.4, 0); // 设置 x 轴位置
+                dragBehavior.useObjectOrientationForDragging = false;
+                box.addBehavior(dragBehavior);
 
-                const zAxis = BABYLON.MeshBuilder.CreateTube("zAxis", {
-                    path: zAxisPoints,
-                    radius: axisThickness,
-                });
-                zAxis.position = new BABYLON.Vector3(0, -0.4, 0); // 设置 x 轴位置
-
-                const xAxisMaterial = new BABYLON.StandardMaterial(
-                    "xAxisMaterial",
-                    scene
-                );
-                xAxisMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0); // 设置 x 轴颜色为红色
-
-                const zAxisMaterial = new BABYLON.StandardMaterial(
-                    "zAxisMaterial",
-                    scene
-                );
-                zAxisMaterial.diffuseColor = new BABYLON.Color3(0, 0, 1); // 设置 z 轴颜色为蓝色
-
-                xAxis.material = xAxisMaterial;
-                zAxis.material = zAxisMaterial;
-
-                // 创建箭头
-                const arrowHead = BABYLON.MeshBuilder.CreateCylinder(
-                    "arrowHead",
+                // 创建X轴模型
+                const xAxis = BABYLON.MeshBuilder.CreateLines(
+                    "xAxis",
                     {
-                        height: arrowSize,
-                        diameterTop: 0,
-                        diameterBottom: arrowSize * 0.8,
-                    }
+                        points: [
+                            BABYLON.Vector3.Zero(),
+                            new BABYLON.Vector3(1, 0, 0),
+                        ],
+                    },
+                    scene
                 );
-                arrowHead.rotation.x = Math.PI / 2; // 旋转箭头使其朝向正方向
-                arrowHead.visibility = 0; // 使箭头半透明
+                xAxis.color = new BABYLON.Color3(1, 0, 0);
+                xAxis.isVisible = false;
 
-                // 将箭头与线段连接并附加到盒子
-                const xArrow = arrowHead.clone();
-                xArrow.visibility = 1;
-                xArrow.parent = xAxis;
-                xArrow.position = new BABYLON.Vector3(2.16, 0, 0); // 设置箭头位置
+                // 创建Y轴模型
+                const yAxis = BABYLON.MeshBuilder.CreateLines(
+                    "yAxis",
+                    {
+                        points: [
+                            BABYLON.Vector3.Zero(),
+                            new BABYLON.Vector3(0, 1, 0),
+                        ],
+                    },
+                    scene
+                );
+                yAxis.color = new BABYLON.Color3(0, 1, 0);
+                yAxis.isVisible = false;
 
-                const zArrow = arrowHead.clone();
-                zArrow.visibility = 1;
-                zArrow.parent = zAxis;
-                zArrow.position = new BABYLON.Vector3(0, 0, 2.16);
+                // 创建Z轴模型
+                const zAxis = BABYLON.MeshBuilder.CreateLines(
+                    "zAxis",
+                    {
+                        points: [
+                            BABYLON.Vector3.Zero(),
+                            new BABYLON.Vector3(0, 0, 1),
+                        ],
+                    },
+                    scene
+                );
+                zAxis.color = new BABYLON.Color3(0, 0, 1);
+                zAxis.isVisible = false;
 
-                // 将线段和箭头附加到盒子
-                xAxis.parent = box;
-                zAxis.parent = box;
+                // 注册一个点击网格时触发的动作
+                box.actionManager = new BABYLON.ActionManager(scene);
+                box.actionManager.registerAction(
+                    new BABYLON.ExecuteCodeAction(
+                        BABYLON.ActionManager.OnPickTrigger,
+                        function (evt) {
+                            if (evt.meshUnderPointer) {
+                                // 获取点击的网格
+                                var mesh = evt.meshUnderPointer;
 
-                // 旋转箭头的方向
-                xArrow.rotation.y = Math.PI / 2; // 将 x 轴箭头旋转 90 度
-                zArrow.rotation.x = Math.PI / 2; // 将 z 轴箭头旋转 90 度
+                                // 设置轴模型的父网格
+                                xAxis.parent = mesh;
+                                yAxis.parent = mesh;
+                                zAxis.parent = mesh;
 
-                const ground = BABYLON.MeshBuilder.CreateGround("ground", {
-                    width: 10,
-                    height: 10,
-                });
+                                // 设置轴模型的位置为网格的位置
+                                xAxis.position.copyFrom(mesh.position);
+                                yAxis.position.copyFrom(mesh.position);
+                                zAxis.position.copyFrom(mesh.position);
 
-                // scene.actionManager = new BABYLON.ActionManager(scene);
+                                // 显示轴模型
+                                xAxis.isVisible = true;
+                                yAxis.isVisible = true;
+                                zAxis.isVisible = true;
+
+                                // 启用拖动行为
+                                dragBehavior.attach(box);
+                            }
+                        }
+                    )
+                );
+
+                // 注册一个在每帧渲染之前触发的动作
+                box.actionManager.registerAction(
+                    new BABYLON.ExecuteCodeAction(
+                        BABYLON.ActionManager.OnEveryFrameTrigger,
+                        function () {
+                            if (dragBehavior.dragging) {
+                                // 更新轴模型的位置为拖动行为的位置
+                                xAxis.position.copyFrom(
+                                    dragBehavior.lastDragPosition
+                                );
+                                yAxis.position.copyFrom(
+                                    dragBehavior.lastDragPosition
+                                );
+                                zAxis.position.copyFrom(
+                                    dragBehavior.lastDragPosition
+                                );
+                            }
+                        }
+                    )
+                );
+
+                // 注册一个在松开鼠标按钮时触发的动作
+                box.actionManager.registerAction(
+                    new BABYLON.ExecuteCodeAction(
+                        BABYLON.ActionManager.OnPickUpTrigger,
+                        function () {
+                            // 隐藏轴模型
+                            xAxis.isVisible = false;
+                            yAxis.isVisible = false;
+                            zAxis.isVisible = false;
+                        }
+                    )
+                );
+
+                const boxWidth = 10;
+                const boxHeight = 0.5;
+                const boxDepth = 10;
+
+                const ground = BABYLON.MeshBuilder.CreateBox(
+                    "box",
+                    { width: boxWidth, height: boxHeight, depth: boxDepth },
+                    scene
+                );
+
+                const wallThickness = boxHeight;
+                const wallHeight = boxDepth / 2;
+                const wallDepth = boxDepth;
+
+                const wall1 = BABYLON.MeshBuilder.CreateBox(
+                    "wall1",
+                    {
+                        width: wallThickness,
+                        height: wallHeight,
+                        depth: wallDepth,
+                    },
+                    scene
+                );
+                wall1.position = new BABYLON.Vector3(
+                    ground.position.x - boxWidth / 2 - wallThickness / 2,
+                    2.25,
+                    ground.position.z
+                );
+
+                const wall2 = BABYLON.MeshBuilder.CreateBox(
+                    "wall2",
+                    {
+                        width: boxWidth + 0.5,
+                        height: wallHeight,
+                        depth: wallThickness,
+                    },
+                    scene
+                );
+
+                wall2.position = new BABYLON.Vector3(
+                    -0.25,
+                    2.25,
+                    ground.position.z + boxDepth / 2 + wallThickness / 2
+                );
                 scene.debugLayer.show();
                 return scene;
             };
 
             window.initFunction = async function () {
-                var asyncEngineCreation = async function () {
+                const asyncEngineCreation = async function () {
                     try {
                         return createDefaultEngine();
                     } catch (e) {
