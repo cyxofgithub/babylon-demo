@@ -125,129 +125,9 @@
                     new BABYLON.Vector3(1, 1, 0)
                 );
 
-                const boxMat = new BABYLON.StandardMaterial("boxMat");
-                boxMat.diffuseTexture = new BABYLON.Texture(
+                const mat3 = new BABYLON.StandardMaterial("mat3");
+                mat3.diffuseTexture = new BABYLON.Texture(
                     "https://www.babylonjs-playground.com/textures/floor.png"
-                );
-
-                /**** World Objects *****/
-                const box = BABYLON.MeshBuilder.CreateBox("box", {});
-                box.material = boxMat;
-                box.position.y = 0.5;
-
-                // 创建一个指针拖动行为
-                const dragBehavior = new BABYLON.PointerDragBehavior({
-                    dragPlaneNormal: new BABYLON.Vector3(0, 1, 0),
-                });
-                dragBehavior.useObjectOrientationForDragging = false;
-                box.addBehavior(dragBehavior);
-
-                // 创建X轴模型
-                const xAxis = BABYLON.MeshBuilder.CreateLines(
-                    "xAxis",
-                    {
-                        points: [
-                            BABYLON.Vector3.Zero(),
-                            new BABYLON.Vector3(1, 0, 0),
-                        ],
-                    },
-                    scene
-                );
-                xAxis.color = new BABYLON.Color3(1, 0, 0);
-                xAxis.isVisible = false;
-
-                // 创建Y轴模型
-                const yAxis = BABYLON.MeshBuilder.CreateLines(
-                    "yAxis",
-                    {
-                        points: [
-                            BABYLON.Vector3.Zero(),
-                            new BABYLON.Vector3(0, 1, 0),
-                        ],
-                    },
-                    scene
-                );
-                yAxis.color = new BABYLON.Color3(0, 1, 0);
-                yAxis.isVisible = false;
-
-                // 创建Z轴模型
-                const zAxis = BABYLON.MeshBuilder.CreateLines(
-                    "zAxis",
-                    {
-                        points: [
-                            BABYLON.Vector3.Zero(),
-                            new BABYLON.Vector3(0, 0, 1),
-                        ],
-                    },
-                    scene
-                );
-                zAxis.color = new BABYLON.Color3(0, 0, 1);
-                zAxis.isVisible = false;
-
-                // 注册一个点击网格时触发的动作
-                box.actionManager = new BABYLON.ActionManager(scene);
-                box.actionManager.registerAction(
-                    new BABYLON.ExecuteCodeAction(
-                        BABYLON.ActionManager.OnPickTrigger,
-                        function (evt) {
-                            if (evt.meshUnderPointer) {
-                                // 获取点击的网格
-                                var mesh = evt.meshUnderPointer;
-
-                                // 设置轴模型的父网格
-                                xAxis.parent = mesh;
-                                yAxis.parent = mesh;
-                                zAxis.parent = mesh;
-
-                                // 设置轴模型的位置为网格的位置
-                                xAxis.position.copyFrom(mesh.position);
-                                yAxis.position.copyFrom(mesh.position);
-                                zAxis.position.copyFrom(mesh.position);
-
-                                // 显示轴模型
-                                xAxis.isVisible = true;
-                                yAxis.isVisible = true;
-                                zAxis.isVisible = true;
-
-                                // 启用拖动行为
-                                dragBehavior.attach(box);
-                            }
-                        }
-                    )
-                );
-
-                // 注册一个在每帧渲染之前触发的动作
-                box.actionManager.registerAction(
-                    new BABYLON.ExecuteCodeAction(
-                        BABYLON.ActionManager.OnEveryFrameTrigger,
-                        function () {
-                            if (dragBehavior.dragging) {
-                                // 更新轴模型的位置为拖动行为的位置
-                                xAxis.position.copyFrom(
-                                    dragBehavior.lastDragPosition
-                                );
-                                yAxis.position.copyFrom(
-                                    dragBehavior.lastDragPosition
-                                );
-                                zAxis.position.copyFrom(
-                                    dragBehavior.lastDragPosition
-                                );
-                            }
-                        }
-                    )
-                );
-
-                // 注册一个在松开鼠标按钮时触发的动作
-                box.actionManager.registerAction(
-                    new BABYLON.ExecuteCodeAction(
-                        BABYLON.ActionManager.OnPickUpTrigger,
-                        function () {
-                            // 隐藏轴模型
-                            xAxis.isVisible = false;
-                            yAxis.isVisible = false;
-                            zAxis.isVisible = false;
-                        }
-                    )
                 );
 
                 const boxWidth = 10;
@@ -260,7 +140,7 @@
                     scene
                 );
 
-                ground.material = boxMat;
+                ground.material = mat3;
 
                 const wallThickness = boxHeight;
                 const wallHeight = boxDepth / 2;
@@ -298,8 +178,155 @@
                 );
 
                 // 将材质应用于盒子
-                wall1.material = boxMat;
-                wall2.material = boxMat;
+                wall1.material = mat3;
+                wall2.material = mat3;
+                // 创建按钮
+                const button = BABYLON.GUI.Button.CreateSimpleButton(
+                    "button",
+                    "material"
+                );
+                button.width = "150px";
+                button.height = "40px";
+                button.color = "white";
+                button.horizontalAlignment =
+                    BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+                button.verticalAlignment =
+                    BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+                button.top = "10px";
+                button.background = "green";
+                button.cornerRadius = 10;
+
+                // 创建按钮
+                const meshButton = BABYLON.GUI.Button.CreateSimpleButton(
+                    "meshButton",
+                    "mesh"
+                );
+                meshButton.width = "150px";
+                meshButton.height = "40px";
+                meshButton.color = "white";
+                meshButton.horizontalAlignment =
+                    BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+                meshButton.verticalAlignment =
+                    BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+                meshButton.left = "160px";
+                meshButton.top = "10px";
+
+                meshButton.background = "green";
+                meshButton.cornerRadius = 10;
+
+                // Create tri-planar material
+                const mat1 = new BABYLON.TriPlanarMaterial("triplanar", scene);
+                mat1.diffuseTextureX = new BABYLON.Texture(
+                    "textures/rock.png",
+                    scene
+                );
+                mat1.diffuseTextureY = new BABYLON.Texture(
+                    "textures/grass.png",
+                    scene
+                );
+                mat1.diffuseTextureZ = new BABYLON.Texture(
+                    "textures/floor.png",
+                    scene
+                );
+                mat1.normalTextureX = new BABYLON.Texture(
+                    "textures/rockn.png",
+                    scene
+                );
+                mat1.normalTextureY = new BABYLON.Texture(
+                    "textures/grassn.png",
+                    scene
+                );
+                mat1.normalTextureZ = new BABYLON.Texture(
+                    "textures/rockn.png",
+                    scene
+                );
+                mat1.specularPower = 32;
+                mat1.tileSize = 1.5;
+
+                const mat2 = new BABYLON.StandardMaterial("ground", scene);
+                mat2.diffuseTexture = new BABYLON.Texture(
+                    "textures/ground.jpg",
+                    scene
+                );
+                mat2.diffuseTexture.uScale = 6;
+                mat2.diffuseTexture.vScale = 6;
+                mat2.specularColor = new BABYLON.Color3(0, 0, 0);
+                button.onPointerUpObservable.add(function () {
+                    const num = Math.floor(Math.random() * 3);
+                    const mats = [mat1, mat2, mat3];
+                    const curMat = mats[num];
+                    wall1.material = curMat;
+                    wall2.material = curMat;
+                    ground.material = curMat;
+                });
+
+                // 创建一个指针拖动行为
+                const dragBehavior = new BABYLON.PointerDragBehavior({
+                    dragPlaneNormal: new BABYLON.Vector3(0, 1, 0),
+                });
+                dragBehavior.useObjectOrientationForDragging = false;
+
+                // 将按钮添加到画布上
+                const advancedTexture =
+                    BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+                advancedTexture.addControl(button);
+                advancedTexture.addControl(meshButton);
+
+                meshButton.onPointerUpObservable.add(function () {
+                    const num = Math.round(Math.random());
+
+                    if (num) {
+                        BABYLON.SceneLoader.ImportMesh(
+                            "",
+                            Assets.meshes.Chair.rootUrl,
+                            Assets.meshes.Chair.filename,
+                            scene,
+                            function (meshes) {
+                                // 创建一个空的父节点
+                                const parentNode = new BABYLON.TransformNode(
+                                    "ParentNode"
+                                );
+                                parentNode.addBehavior(dragBehavior);
+                                // 遍历导入的网格
+                                for (let i = 0; i < meshes.length; i++) {
+                                    meshes[i].parent = parentNode;
+                                    // 设置网格的缩放
+                                    meshes[i].scaling = new BABYLON.Vector3(
+                                        0.02,
+                                        0.02,
+                                        0.02
+                                    ); // 设置为2倍大小
+                                }
+                            }
+                        );
+                    } else {
+                        BABYLON.SceneLoader.ImportMesh(
+                            null,
+                            Assets.meshes.vintageFan_animated.rootUrl,
+                            Assets.meshes.vintageFan_animated.filename,
+                            scene,
+                            function (meshes) {
+                                // 创建一个空的父节点
+                                const parentNode = new BABYLON.TransformNode(
+                                    "ParentNode"
+                                );
+                                parentNode.addBehavior(dragBehavior);
+                                // 遍历导入的网格
+                                for (let i = 0; i < meshes.length; i++) {
+                                    meshes[i].parent = parentNode;
+                                    // 设置网格的缩放
+                                    meshes[i].scaling = new BABYLON.Vector3(
+                                        0.02,
+                                        0.02,
+                                        0.02
+                                    ); // 设置为2倍大小
+                                }
+                                parentNode.position.y = 0.25;
+                            }
+                        );
+                    }
+                });
+
                 scene.debugLayer.show();
                 return scene;
             };
