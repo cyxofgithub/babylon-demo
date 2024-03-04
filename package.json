@@ -1,0 +1,23 @@
+{
+    "name": "babylon-demo",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "git@github.com:cyxofgithub/babylon-demo.git",
+    "author": "chenyuanxin <chenyuanxin@cvte.com>",
+    "license": "MIT",
+    "scripts": {
+        "dev": "parcel index.html",
+        "build": "parcel build index.html"
+    },
+    "devDependencies": {
+        "parcel-bundler": "^1.12.5",
+        "typescript": "^5.3.3"
+    },
+    "dependencies": {
+        "@babylonjs/core": "^6.45.1",
+        "@babylonjs/loaders": "^6.45.1",
+        "babylonjs": "^6.45.1",
+        "babylonjs-gui": "^6.45.1",
+        "babylonjs-loaders": "^6.45.1"
+    }
+}
