@@ -5,6 +5,7 @@ import groundTexture from "./textures/ground.jpg";
 import Assets from "./Assets/index.js";
 import "babylonjs-loaders";
 import { createVideoPlane } from "./mesh/VideoPlane/index.ts";
+import { createPictureFrame } from "./mesh/PictureFrame/index.ts";
 
 const canvas = document.getElementById("renderCanvas");
 
@@ -29,15 +30,7 @@ const createScene = () => {
     // 设置场景的背景颜色
     // scene.clearColor = new BABYLON.Color3.FromHexString("#e5e8d8");
     createVideoPlane(scene);
-
-    scene.onPointerObservable.add(function (evt) {
-        if (evt.pickInfo.pickedMesh === ANote0Video) {
-            //console.log("picked");
-            if (ANote0VideoVidTex.video.paused) ANote0VideoVidTex.video.play();
-            else ANote0VideoVidTex.video.pause();
-            console.log(ANote0VideoVidTex.video.paused ? "paused" : "playing");
-        }
-    }, BABYLON.PointerEventTypes.POINTERPICK);
+    const PictureFrame = createPictureFrame(scene);
 
     /**** Set camera and light *****/
     const camera = new BABYLON.ArcRotateCamera(
@@ -104,6 +97,8 @@ const createScene = () => {
         scene
     );
 
+    PictureFrame.parent = wall1;
+
     wall2.position = new BABYLON.Vector3(
         -0.25,
         2.25,
@@ -154,7 +149,7 @@ const createScene = () => {
     mat2.diffuseTexture.vScale = 6;
     mat2.specularColor = new BABYLON.Color3(0, 0, 0);
     button.onPointerUpObservable.add(function () {
-        const num = Math.floor(Math.random() * 3);
+        const num = Math.floor(Math.random() * 2);
         // const mats = [mat1, mat2, mat3];
         const mats = [mat2, mat3];
 

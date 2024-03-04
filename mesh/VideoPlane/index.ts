@@ -27,4 +27,13 @@ export function createVideoPlane(scene: BABYLON.Scene) {
     ANote0VideoMat.roughness = 1;
     // ANote0VideoMat.emissiveColor = new BABYLON.Color3.White();
     ANote0Video.material = ANote0VideoMat;
+
+    scene.onPointerObservable.add(function (evt: BABYLON.PointerInfo) {
+        if (evt?.pickInfo?.pickedMesh === ANote0Video) {
+            //console.log("picked");
+            if (ANote0VideoVidTex.video.paused) ANote0VideoVidTex.video.play();
+            else ANote0VideoVidTex.video.pause();
+            console.log(ANote0VideoVidTex.video.paused ? "paused" : "playing");
+        }
+    }, BABYLON.PointerEventTypes.POINTERPICK);
 }
