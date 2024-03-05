@@ -29,8 +29,6 @@ const createScene = () => {
     const scene = new BABYLON.Scene(engine);
     // 设置场景的背景颜色
     // scene.clearColor = new BABYLON.Color3.FromHexString("#e5e8d8");
-    createVideoPlane(scene);
-    const PictureFrame = createPictureFrame(scene);
 
     /**** Set camera and light *****/
     const camera = new BABYLON.ArcRotateCamera(
@@ -50,6 +48,9 @@ const createScene = () => {
         "light",
         new BABYLON.Vector3(1, 1, 0)
     );
+
+    createVideoPlane(scene);
+    const PictureFrame = createPictureFrame(scene, camera, canvas);
 
     const mat3 = new BABYLON.StandardMaterial("mat3");
     mat3.diffuseTexture = new BABYLON.Texture(

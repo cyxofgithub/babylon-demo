@@ -43,56 +43,38 @@ export function createPictureFrame(scene: BABYLON.Scene) {
 
     // 长按拖动相框
     const dragBehavior = new BABYLON.PointerDragBehavior({
-        dragAxis: new BABYLON.Vector3(1, 0, 0),
+        dragPlaneNormal: new BABYLON.Vector3(0, 1, 0),
     });
     frame.addBehavior(dragBehavior);
 
-    dragBehavior.onDragStartObservable.add(() => {
-        console.log("Drag Start");
-    });
+    let newPosition: BABYLON.Vector3 | null = null;
 
     dragBehavior.onDragObservable.add((event) => {
         // 获取相框的父节点
         const parent = frame.parent as any;
         const dragDelta = event.delta;
-        console.log(
-            "🚀 ~ dragBehavior.onDragObservable.add ~ dragDelta:",
-            dragDelta
+
+        // 计算相框的新位置
+        newPosition = frame.position.add(
+            new BABYLON.Vector3(dragDelta.x, 0, dragDelta.y)
         );
-        const newFramePosition = frame.position.add(dragDelta);
 
-        if (parent) {
-            // 获取父节点的边界范围
-            const parentMin = parent.getBoundingInfo().boundingBox.minimum;
-            console.log(
-                "🚀 ~ dragBehavior.onDragObservable.add ~ parentMin:",
-                parentMin
-            );
-            const parentMax = parent.getBoundingInfo().boundingBox.maximum;
-
-            // 限制相框在父节点范围内拖动
-            newFramePosition.x = Math.min(
-                Math.max(newFramePosition.x, parentMin.x),
-                parentMax.x
-            );
-            newFramePosition.y = Math.min(
-                Math.max(newFramePosition.y, parentMin.y),
-                parentMax.y
-            );
-            newFramePosition.z = Math.min(
-                Math.max(newFramePosition.z, parentMin.z),
-                parentMax.z
-            );
-
-            // 更新相框的位置
-            frame.position.copyFrom(newFramePosition);
-        }
-
-        frame.position.addInPlace(dragDelta);
+        // 限制相框的位置在平面内
+        newPosition.z =
+            Math.abs(newPosition.z) >= 4.5
+                ? newPosition.z > 0
+                    ? 4.5
+                    : -4.5
+                : newPosition.z;
+        newPosition.y = newPosition.y >= 2 ? 2 : newPosition.y;
+        newPosition.y = newPosition.y <= -1.5 ? -1.5 : newPosition.y;
     });
 
     dragBehavior.onDragEndObservable.add(() => {
         console.log("Drag End");
+        if (newPosition) {
+            frame.position.copyFrom(newPosition);
+        }
     });
 
     const photo = BABYLON.MeshBuilder.CreatePlane(
