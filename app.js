@@ -4,26 +4,32 @@ import groundTexture from "./textures/ground.jpg";
 import Assets from "./Assets/index.js";
 import { createVideoPlane } from "./mesh/VideoPlane/index.ts";
 import { createPictureFrame } from "./mesh/PictureFrame/index.ts";
-import React from "react";
-function App() {
-    const canvas = document.getElementById("renderCanvas");
+import React, { useEffect, useRef } from "react";
 
-    const startRenderLoop = function (engine, canvas) {
+function App() {
+    const canvas = useRef(null);
+
+    let sceneToRender = useRef(null);
+
+    const startRenderLoop = function (engine) {
         engine.runRenderLoop(function () {
-            if (sceneToRender && sceneToRender.activeCamera) {
-                sceneToRender.render();
+            if (sceneToRender && sceneToRender.current?.activeCamera) {
+                sceneToRender.current.render();
             }
         });
     };
-
-    var sceneToRender = null;
-    const createDefaultEngine = function () {
-        return new BABYLON.Engine(canvas, true, {
+    async function initFunction() {
+        window.engine = new BABYLON.Engine(canvas.current, true, {
             preserveDrawingBuffer: true,
             stencil: true,
             disableWebGL2Support: false,
         });
-    };
+
+        if (!engine) throw "engine should not be null.";
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();
+    }
+
     const createScene = () => {
         const scene = new BABYLON.Scene(engine);
         // 设置场景的背景颜色
@@ -237,33 +243,24 @@ function App() {
         return scene;
     };
 
-    window.initFunction = async function () {
-        const asyncEngineCreation = async function () {
-            try {
-                return createDefaultEngine();
-            } catch (e) {
-                console.log(
-                    "the available createEngine function failed. Creating the default engine instead"
-                );
-                return createDefaultEngine();
-            }
-        };
+    useEffect(() => {
+        if (canvas.current) {
+            initFunction().then(() => {
+                sceneToRender.current = scene;
+            });
 
-        window.engine = await asyncEngineCreation();
-        if (!engine) throw "engine should not be null.";
-        startRenderLoop(engine, canvas);
-        window.scene = createScene();
-    };
-    initFunction().then(() => {
-        sceneToRender = scene;
-    });
+            // Resize
+            window.addEventListener("resize", function () {
+                engine.resize();
+            });
+        }
+    }, [canvas.current]);
 
-    // Resize
-    window.addEventListener("resize", function () {
-        engine.resize();
-    });
-
-    return <h1>Hello</h1>;
+    return (
+        <div id="canvasZone">
+            <canvas id="renderCanvas" ref={canvas}></canvas>
+        </div>
+    );
 }
 
 export default App;
