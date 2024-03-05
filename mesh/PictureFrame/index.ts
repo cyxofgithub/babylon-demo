@@ -1,5 +1,6 @@
 import * as BABYLON from "babylonjs";
 import grass from "../../textures/grass.png";
+import globalStore from "../../store";
 
 function onClickFrame(event: BABYLON.ActionEvent, scene: BABYLON.Scene) {
     const pickResult = scene.pick(event.pointerX, event.pointerY);
@@ -17,30 +18,7 @@ function onClickFrame(event: BABYLON.ActionEvent, scene: BABYLON.Scene) {
     }
 }
 
-export function createPictureFrame(scene: BABYLON.Scene) {
-    // 创建相框
-    const frame = BABYLON.MeshBuilder.CreateBox(
-        "frame",
-        { width: 1, height: 0.2, depth: 1 },
-        scene
-    );
-    // 设置相框材质
-    const frameMaterial = new BABYLON.StandardMaterial("frameMaterial", scene);
-    frameMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.6, 0.4);
-    frame.material = frameMaterial;
-
-    frame.rotate(BABYLON.Axis.Z, Math.PI / 2);
-    frame.position.x = 0.3;
-
-    // 相框点击事件
-    frame.actionManager = new BABYLON.ActionManager(scene);
-    frame.actionManager.registerAction(
-        new BABYLON.ExecuteCodeAction(
-            BABYLON.ActionManager.OnPickTrigger,
-            (event) => onClickFrame(event, scene)
-        )
-    );
-
+function frameWidthBehavior(frame: BABYLON.Mesh) {
     // 长按拖动相框
     const dragBehavior = new BABYLON.PointerDragBehavior({
         dragPlaneNormal: new BABYLON.Vector3(0, 1, 0),
@@ -71,11 +49,52 @@ export function createPictureFrame(scene: BABYLON.Scene) {
     });
 
     dragBehavior.onDragEndObservable.add(() => {
-        console.log("Drag End");
         if (newPosition) {
             frame.position.copyFrom(newPosition);
         }
     });
+}
+
+function photoAddModalAction(photo: BABYLON.Mesh, scene: BABYLON.Scene) {
+    photo.actionManager = new BABYLON.ActionManager(scene);
+    photo.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+            BABYLON.ActionManager.OnPickTrigger,
+            function (event) {
+                globalStore.modal?.confirm({
+                    title: "更换照片",
+                    content: "这是一张美丽的照片",
+                    centered: true,
+                });
+            }
+        )
+    );
+}
+
+export function createPictureFrame(scene: BABYLON.Scene) {
+    // 创建相框
+    const frame = BABYLON.MeshBuilder.CreateBox(
+        "frame",
+        { width: 1, height: 0.2, depth: 1 },
+        scene
+    );
+    // 设置相框材质
+    const frameMaterial = new BABYLON.StandardMaterial("frameMaterial", scene);
+    frameMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.6, 0.4);
+    frame.material = frameMaterial;
+
+    frame.rotate(BABYLON.Axis.Z, Math.PI / 2);
+    frame.position.x = 0.3;
+
+    // 相框点击事件
+    frame.actionManager = new BABYLON.ActionManager(scene);
+    frame.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+            BABYLON.ActionManager.OnPickTrigger,
+            (event) => onClickFrame(event, scene)
+        )
+    );
+    frameWidthBehavior(frame);
 
     const photo = BABYLON.MeshBuilder.CreatePlane(
         "photo",
@@ -91,6 +110,8 @@ export function createPictureFrame(scene: BABYLON.Scene) {
     const photoMaterial = new BABYLON.StandardMaterial("photoMaterial", scene);
     photoMaterial.diffuseTexture = photoTexture;
     photo.material = photoMaterial;
+
+    photoAddModalAction(photo, scene);
 
     return frame;
 }

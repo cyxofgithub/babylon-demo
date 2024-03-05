@@ -5,9 +5,13 @@ import Assets from "./Assets/index.js";
 import { createVideoPlane } from "./mesh/VideoPlane/index.ts";
 import { createPictureFrame } from "./mesh/PictureFrame/index.ts";
 import React, { useEffect, useRef } from "react";
+import { Modal } from "antd";
+import { Provider } from "mobx-react";
+import globalStore from "./store/index.ts";
 
 function App() {
     const canvas = useRef(null);
+    const [modal, contextHolder] = Modal.useModal();
 
     let sceneToRender = useRef(null);
 
@@ -256,10 +260,17 @@ function App() {
         }
     }, [canvas.current]);
 
+    useEffect(() => {
+        modal && globalStore.toggleModal(modal);
+    }, [modal]);
+
     return (
-        <div id="canvasZone">
-            <canvas id="renderCanvas" ref={canvas}></canvas>
-        </div>
+        <Provider globalStore={globalStore}>
+            <div id="canvasZone">
+                <canvas id="renderCanvas" ref={canvas}></canvas>
+                {contextHolder}
+            </div>
+        </Provider>
     );
 }
 
