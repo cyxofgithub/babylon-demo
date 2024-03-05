@@ -1,6 +1,8 @@
 import * as BABYLON from "babylonjs";
 import grass from "../../textures/grass.png";
 import globalStore from "../../store";
+import { UploadImg } from "../../components/UploadImg";
+import * as React from "react";
 
 function onClickFrame(event: BABYLON.ActionEvent, scene: BABYLON.Scene) {
     const pickResult = scene.pick(event.pointerX, event.pointerY);
@@ -61,11 +63,37 @@ function photoAddModalAction(photo: BABYLON.Mesh, scene: BABYLON.Scene) {
         new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPickTrigger,
             function (event) {
-                globalStore.modal?.confirm({
-                    title: "更换照片",
-                    content: "这是一张美丽的照片",
-                    centered: true,
-                });
+                globalStore.modal
+                    ?.confirm({
+                        title: "更换照片",
+                        content: <UploadImg />,
+                        centered: true,
+                    })
+                    .then(
+                        (res) => {
+                            if (res) {
+                                const url = globalStore.pictureUrl;
+                                globalStore.setPictureUrl("");
+
+                                if (url) {
+                                    const photoTexture = new BABYLON.Texture(
+                                        url,
+                                        scene
+                                    );
+
+                                    const photoMaterial =
+                                        new BABYLON.StandardMaterial(
+                                            "photoMaterial",
+                                            scene
+                                        );
+                                    photoMaterial.diffuseTexture = photoTexture;
+
+                                    photo.material = photoMaterial;
+                                }
+                            }
+                        },
+                        () => {}
+                    );
             }
         )
     );

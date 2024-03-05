@@ -11,6 +11,7 @@
     },
     "devDependencies": {
         "@types/react": "^18.2.62",
+        "@types/react-dom": "^18.2.19",
         "parcel-bundler": "^1.12.5",
         "typescript": "^5.3.3"
     },

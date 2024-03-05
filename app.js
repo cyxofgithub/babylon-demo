@@ -3,7 +3,7 @@ import * as GUI from "babylonjs-gui";
 import groundTexture from "./textures/ground.jpg";
 import Assets from "./Assets/index.js";
 import { createVideoPlane } from "./mesh/VideoPlane/index.ts";
-import { createPictureFrame } from "./mesh/PictureFrame/index.ts";
+import { createPictureFrame } from "./mesh/PictureFrame/index.tsx";
 import React, { useEffect, useRef } from "react";
 import { Modal } from "antd";
 import { Provider } from "mobx-react";
