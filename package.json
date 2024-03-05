@@ -10,6 +10,7 @@
         "build": "parcel build index.html"
     },
     "devDependencies": {
+        "@types/react": "^18.2.62",
         "parcel-bundler": "^1.12.5",
         "typescript": "^5.3.3"
     },
@@ -18,6 +19,8 @@
         "@babylonjs/loaders": "^6.45.1",
         "babylonjs": "^6.45.1",
         "babylonjs-gui": "^6.45.1",
-        "babylonjs-loaders": "^6.45.1"
+        "babylonjs-loaders": "^6.45.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     }
 }
