@@ -106,6 +106,7 @@ export function createPictureFrame(scene: BABYLON.Scene) {
         { width: 1, height: 0.2, depth: 1 },
         scene
     );
+    globalStore.setAllowedControlMesh(frame as any);
     // 设置相框材质
     const frameMaterial = new BABYLON.StandardMaterial("frameMaterial", scene);
     frameMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.6, 0.4);
