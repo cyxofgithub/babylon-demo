@@ -2,6 +2,7 @@ import { createPictureFrame } from "../mesh/PictureFrame/index.tsx";
 import { createVideoPlane } from "../mesh/VideoPlane/index.ts";
 import * as GUI from "babylonjs-gui";
 import groundTexture from "../assets/textures/ground.jpg";
+import grassTexture from "../assets/textures/grass.png";
 import floorTexture from "../assets/textures/floor.png";
 import Assets from "../assets/index.js";
 import Chair from "../assets/mesh/Chair/Chair.obj";
@@ -114,16 +115,8 @@ export const createScene = (engine, canvas) => {
     meshButton.background = "green";
     meshButton.cornerRadius = 10;
 
-    // Create tri-planar material
-    // const mat1 = new BABYLON.TriPlanarMaterial("triplanar", scene);
-    // mat1.diffuseTextureX = new BABYLON.Texture("textures/rock.png", scene);
-    // mat1.diffuseTextureY = new BABYLON.Texture("textures/grass.png", scene);
-    // mat1.diffuseTextureZ = new BABYLON.Texture("textures/floor.png", scene);
-    // mat1.normalTextureX = new BABYLON.Texture("textures/rockn.png", scene);
-    // mat1.normalTextureY = new BABYLON.Texture("textures/grassn.png", scene);
-    // mat1.normalTextureZ = new BABYLON.Texture("textures/rockn.png", scene);
-    // mat1.specularPower = 32;
-    // mat1.tileSize = 1.5;
+    const mat1 = new BABYLON.StandardMaterial("grass", scene);
+    mat1.diffuseTexture = new BABYLON.Texture(grassTexture, scene);
 
     const mat2 = new BABYLON.StandardMaterial("ground", scene);
     mat2.diffuseTexture = new BABYLON.Texture(groundTexture, scene);
@@ -131,9 +124,15 @@ export const createScene = (engine, canvas) => {
     mat2.diffuseTexture.vScale = 6;
     mat2.specularColor = new BABYLON.Color3(0, 0, 0);
     button.onPointerUpObservable.add(function () {
-        const num = Math.floor(Math.random() * 2);
-        // const mats = [mat1, mat2, mat3];
-        const mats = [mat2, mat3];
+        // 导出当前场景
+        // var serializedScene = BABYLON.SceneSerializer.Serialize(scene);
+
+        // // 将场景序列化为 JSON 字符串
+        // var jsonString = JSON.stringify(serializedScene);
+        // console.log("🚀 ~ jsonString:", jsonString);
+
+        const num = Math.floor(Math.random() * 3);
+        const mats = [mat1, mat2, mat3];
 
         const curMat = mats[num];
         wall1.material = curMat;
