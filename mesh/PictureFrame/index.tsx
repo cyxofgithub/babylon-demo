@@ -1,5 +1,5 @@
 import * as BABYLON from "babylonjs";
-import grass from "../../textures/grass.png";
+import grass from "../../assets/textures/grass.png";
 import globalStore from "../../store";
 import { UploadImg } from "../../components/UploadImg";
 import * as React from "react";
