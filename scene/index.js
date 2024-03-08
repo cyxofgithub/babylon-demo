@@ -2,6 +2,7 @@ import { createPictureFrame } from "../mesh/PictureFrame/index.tsx";
 import { createVideoPlane } from "../mesh/VideoPlane/index.ts";
 import * as GUI from "babylonjs-gui";
 import groundTexture from "../textures/ground.jpg";
+import floorTexture from "../textures/floor.png";
 import Assets from "../Assets/index.js";
 import { initRotateCircle } from "../mesh/RotateCircle/index.ts";
 
@@ -34,9 +35,7 @@ export const createScene = (engine, canvas) => {
     const PictureFrame = createPictureFrame(scene);
 
     const mat3 = new BABYLON.StandardMaterial("mat3");
-    mat3.diffuseTexture = new BABYLON.Texture(
-        "https://www.babylonjs-playground.com/textures/floor.png"
-    );
+    mat3.diffuseTexture = new BABYLON.Texture(floorTexture);
 
     const boxWidth = 10;
     const boxHeight = 0.5;
@@ -141,12 +140,6 @@ export const createScene = (engine, canvas) => {
         ground.material = curMat;
     });
 
-    // 创建一个指针拖动行为
-    const dragBehavior = new BABYLON.PointerDragBehavior({
-        dragPlaneNormal: new BABYLON.Vector3(0, 1, 0),
-    });
-    dragBehavior.useObjectOrientationForDragging = false;
-
     // 将按钮添加到画布上
     const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     advancedTexture.addControl(button);
@@ -154,6 +147,12 @@ export const createScene = (engine, canvas) => {
 
     meshButton.onPointerUpObservable.add(function () {
         const num = Math.round(Math.random());
+
+        // 创建一个指针拖动行为
+        const dragBehavior = new BABYLON.PointerDragBehavior({
+            dragPlaneNormal: new BABYLON.Vector3(0, 1, 0),
+        });
+        dragBehavior.useObjectOrientationForDragging = false;
 
         if (num) {
             BABYLON.SceneLoader.ImportMesh(
