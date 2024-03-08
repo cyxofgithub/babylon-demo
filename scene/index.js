@@ -1,8 +1,8 @@
 import { createPictureFrame } from "../mesh/PictureFrame/index.tsx";
 import { createVideoPlane } from "../mesh/VideoPlane/index.ts";
 import * as GUI from "babylonjs-gui";
-import groundTexture from "../textures/ground.jpg";
-import floorTexture from "../textures/floor.png";
+import groundTexture from "../assets/textures/ground.jpg";
+import floorTexture from "../assets/textures/floor.png";
 import Assets from "../Assets/index.js";
 import { initRotateCircle } from "../mesh/RotateCircle/index.ts";
 

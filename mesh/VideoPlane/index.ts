@@ -1,6 +1,6 @@
 import * as BABYLON from "babylonjs";
 
-import oceanViedeo from "../../video/oceans.mp4";
+import oceanViedeo from "../../assets/video/oceans.mp4";
 
 export function createVideoPlane(scene: BABYLON.Scene) {
     const planeOpts = {
