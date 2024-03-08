@@ -3,7 +3,8 @@ import { createVideoPlane } from "../mesh/VideoPlane/index.ts";
 import * as GUI from "babylonjs-gui";
 import groundTexture from "../assets/textures/ground.jpg";
 import floorTexture from "../assets/textures/floor.png";
-import Assets from "../Assets/index.js";
+import Assets from "../assets/index.js";
+import Chair from "../assets/mesh/Chair/Chair.obj";
 import { initRotateCircle } from "../mesh/RotateCircle/index.ts";
 
 export const createScene = (engine, canvas) => {
@@ -157,8 +158,8 @@ export const createScene = (engine, canvas) => {
         if (num) {
             BABYLON.SceneLoader.ImportMesh(
                 "",
-                Assets.meshes.Chair.rootUrl,
-                Assets.meshes.Chair.filename,
+                Chair,
+                "",
                 scene,
                 function (meshes) {
                     // 创建一个空的父节点
