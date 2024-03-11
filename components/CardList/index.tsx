@@ -41,7 +41,16 @@ let CardList = memo((_props: IProps) => {
                                 }}
                                 onClick={() => onSelect(item)}
                                 hoverable
-                                cover={<img alt="example" src={item.url} />}
+                                cover={
+                                    <img
+                                        alt="example"
+                                        src={item.url}
+                                        style={{
+                                            width: 234,
+                                            height: 234,
+                                        }}
+                                    />
+                                }
                             ></Card>
                         </Col>
                     );
