@@ -4,10 +4,9 @@ import * as GUI from "babylonjs-gui";
 import groundTexture from "../assets/textures/ground.jpg";
 import grassTexture from "../assets/textures/grass.png";
 import floorTexture from "../assets/textures/floor.png";
-import Assets from "../assets/index.js";
-import Chair from "../assets/mesh/Chair/Chair.obj";
 import { initRotateCircle } from "../mesh/RotateCircle/index.ts";
 import { createSpaceMaterialButton } from "../mesh/SpaceMaterialButton/index.tsx";
+import { createModelButton } from "../mesh/ModelButton/index.tsx";
 
 export const createScene = (engine, canvas) => {
     const scene = new BABYLON.Scene(engine);
@@ -93,18 +92,7 @@ export const createScene = (engine, canvas) => {
     wall1.material = mat3;
     wall2.material = mat3;
 
-    // 创建按钮
-    const meshButton = GUI.Button.CreateSimpleButton("meshButton", "模型");
-    meshButton.width = "150px";
-    meshButton.height = "40px";
-    meshButton.color = "white";
-    meshButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-    meshButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-    meshButton.left = "170px";
-    meshButton.top = "10px";
 
-    meshButton.background = "green";
-    meshButton.cornerRadius = 10;
 
     const mat1 = new BABYLON.StandardMaterial("grass", scene);
     mat1.diffuseTexture = new BABYLON.Texture(grassTexture, scene);
@@ -116,68 +104,14 @@ export const createScene = (engine, canvas) => {
     mat2.specularColor = new BABYLON.Color3(0, 0, 0);
 
     const button = createSpaceMaterialButton(wall1, wall2, ground, mat1, mat2, mat3);
+    const meshButton = createModelButton(scene);
 
     // 将按钮添加到画布上
     const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     advancedTexture.addControl(button);
     advancedTexture.addControl(meshButton);
 
-    meshButton.onPointerUpObservable.add(function () {
-        const num = Math.round(Math.random());
 
-        // 创建一个指针拖动行为
-        const dragBehavior = new BABYLON.PointerDragBehavior({
-            dragPlaneNormal: new BABYLON.Vector3(0, 1, 0),
-        });
-        dragBehavior.useObjectOrientationForDragging = false;
-
-        if (num) {
-            BABYLON.SceneLoader.ImportMesh(
-                "",
-                Chair,
-                "",
-                scene,
-                function (meshes) {
-                    // 创建一个空的父节点
-                    const parentNode = new BABYLON.TransformNode("ParentNode");
-                    parentNode.addBehavior(dragBehavior);
-                    // 遍历导入的网格
-                    for (let i = 0; i < meshes.length; i++) {
-                        meshes[i].parent = parentNode;
-                        // 设置网格的缩放
-                        meshes[i].scaling = new BABYLON.Vector3(
-                            0.02,
-                            0.02,
-                            0.02
-                        ); // 设置为2倍大小
-                    }
-                }
-            );
-        } else {
-            BABYLON.SceneLoader.ImportMesh(
-                null,
-                Assets.meshes.vintageFan_animated.rootUrl,
-                Assets.meshes.vintageFan_animated.filename,
-                scene,
-                function (meshes) {
-                    // 创建一个空的父节点
-                    const parentNode = new BABYLON.TransformNode("ParentNode");
-                    parentNode.addBehavior(dragBehavior);
-                    // 遍历导入的网格
-                    for (let i = 0; i < meshes.length; i++) {
-                        meshes[i].parent = parentNode;
-                        // 设置网格的缩放
-                        meshes[i].scaling = new BABYLON.Vector3(
-                            0.02,
-                            0.02,
-                            0.02
-                        ); // 设置为2倍大小
-                    }
-                    parentNode.position.y = 0.25;
-                }
-            );
-        }
-    });
 
     scene.debugLayer.show();
     scene.clearColor = new BABYLON.Color4(224 / 255, 211 / 255, 207 / 255, 1);
