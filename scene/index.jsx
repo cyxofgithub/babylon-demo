@@ -7,9 +7,7 @@ import floorTexture from "../assets/textures/floor.png";
 import Assets from "../assets/index.js";
 import Chair from "../assets/mesh/Chair/Chair.obj";
 import { initRotateCircle } from "../mesh/RotateCircle/index.ts";
-import globalStore from "../store/index.ts";
-import { CardList } from "../components/CardList/index.tsx";
-import * as React from "react";
+import { createSpaceMaterialButton } from "../mesh/SpaceMaterialButton/index.tsx";
 
 export const createScene = (engine, canvas) => {
     const scene = new BABYLON.Scene(engine);
@@ -94,25 +92,15 @@ export const createScene = (engine, canvas) => {
     // 将材质应用于盒子
     wall1.material = mat3;
     wall2.material = mat3;
-    // 创建按钮
-    const button = GUI.Button.CreateSimpleButton("button", "material");
-    button.width = "150px";
-    button.height = "40px";
-    button.color = "white";
-    button.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-    button.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-    button.top = "10px";
-    button.background = "green";
-    button.cornerRadius = 10;
 
     // 创建按钮
-    const meshButton = GUI.Button.CreateSimpleButton("meshButton", "mesh");
+    const meshButton = GUI.Button.CreateSimpleButton("meshButton", "模型");
     meshButton.width = "150px";
     meshButton.height = "40px";
     meshButton.color = "white";
     meshButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
     meshButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-    meshButton.left = "160px";
+    meshButton.left = "170px";
     meshButton.top = "10px";
 
     meshButton.background = "green";
@@ -126,35 +114,8 @@ export const createScene = (engine, canvas) => {
     mat2.diffuseTexture.uScale = 6;
     mat2.diffuseTexture.vScale = 6;
     mat2.specularColor = new BABYLON.Color3(0, 0, 0);
-    button.onPointerUpObservable.add(function () {
-    
-        const modal = globalStore.modal.confirm({
-            title: "选择材料",
-            content: <CardList onSelect={onSelect} list={[{
-                url: grassTexture,
-                val: mat1,
-            
-            },{
-                url: groundTexture,
-                val: mat2,
-            }, {
-                url: floorTexture,
-                val: mat3,
-            }]}/>,
-            centered: true,
-            width: 820,
-            closable: true,
-            footer: null,
-        });
 
-        function onSelect(item) {
-            const {val} = item;
-            wall1.material = val;
-            wall2.material = val;
-            ground.material = val;
-            modal.destroy();
-        }
-    });
+    const button = createSpaceMaterialButton(wall1, wall2, ground, mat1, mat2, mat3);
 
     // 将按钮添加到画布上
     const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
