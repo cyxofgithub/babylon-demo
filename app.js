@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { Modal } from "antd";
 import { Provider } from "mobx-react";
 import globalStore from "./store/index.ts";
-import { createScene } from "./scene/index.js";
+import { createScene } from "./scene/index.jsx";
 
 function App() {
     const canvas = useRef(null);

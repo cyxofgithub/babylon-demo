@@ -7,6 +7,9 @@ import floorTexture from "../assets/textures/floor.png";
 import Assets from "../assets/index.js";
 import Chair from "../assets/mesh/Chair/Chair.obj";
 import { initRotateCircle } from "../mesh/RotateCircle/index.ts";
+import globalStore from "../store/index.ts";
+import { CardList } from "../components/CardList/index.tsx";
+import * as React from "react";
 
 export const createScene = (engine, canvas) => {
     const scene = new BABYLON.Scene(engine);
@@ -124,20 +127,33 @@ export const createScene = (engine, canvas) => {
     mat2.diffuseTexture.vScale = 6;
     mat2.specularColor = new BABYLON.Color3(0, 0, 0);
     button.onPointerUpObservable.add(function () {
-        // 导出当前场景
-        // var serializedScene = BABYLON.SceneSerializer.Serialize(scene);
+    
+        const modal = globalStore.modal.confirm({
+            title: "选择材料",
+            content: <CardList onSelect={onSelect} list={[{
+                url: grassTexture,
+                val: mat1,
+            
+            },{
+                url: groundTexture,
+                val: mat2,
+            }, {
+                url: floorTexture,
+                val: mat3,
+            }]}/>,
+            centered: true,
+            width: 820,
+            closable: true,
+            footer: null,
+        });
 
-        // // 将场景序列化为 JSON 字符串
-        // var jsonString = JSON.stringify(serializedScene);
-        // console.log("🚀 ~ jsonString:", jsonString);
-
-        const num = Math.floor(Math.random() * 3);
-        const mats = [mat1, mat2, mat3];
-
-        const curMat = mats[num];
-        wall1.material = curMat;
-        wall2.material = curMat;
-        ground.material = curMat;
+        function onSelect(item) {
+            const {val} = item;
+            wall1.material = val;
+            wall2.material = val;
+            ground.material = val;
+            modal.destroy();
+        }
     });
 
     // 将按钮添加到画布上
